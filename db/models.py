@@ -13,9 +13,12 @@ class Base(DeclarativeBase):
     pass
 
 
+#DBのテーブル定義
+
 class Movie(Base):
     __tablename__ = "movies"
 
+    #基本情報
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     title: Mapped[str] = mapped_column(String, nullable=False)
     duration_min: Mapped[int] = mapped_column(Integer, nullable=False)
@@ -26,24 +29,41 @@ class Movie(Base):
     # 作品説明（任意）
     description: Mapped[str | None] = mapped_column(String, nullable=True)
 
-    run_start_date: Mapped[str | None] = mapped_column(String, nullable=True)  # YYYY-MM-DD
-    run_end_date: Mapped[str | None] = mapped_column(String, nullable=True)    # YYYY-MM-DD
+    # 上映期間（任意）
+    run_start_date: Mapped[str | None] = mapped_column(String, nullable=True)  # ISO8601 
+    run_end_date: Mapped[str | None] = mapped_column(String, nullable=True)    # ISO8601
 
-    shows: Mapped[list["Show"]] = relationship(back_populates="movie")
+    # Showとの関連付け
+    shows: Mapped[list["Show"]] = relationship(
+        back_populates="movie",
+        cascade="all, delete-orphan",
+    )
 
 
 class Show(Base):
     __tablename__ = "shows"
 
+    #回ごとのidと、上映される映画のID
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     movie_id: Mapped[int] = mapped_column(ForeignKey("movies.id"), nullable=False)
 
+    # 上映情報
     hall: Mapped[str] = mapped_column(String, nullable=False)      # "A"～"D"
-    start_at: Mapped[str] = mapped_column(String, nullable=False)  # 文字列でOK（ISO8601推奨）
+    start_at: Mapped[str] = mapped_column(String, nullable=False)  # ISO8601
+    end_at: Mapped[str] = mapped_column(String, nullable=False)    # ISO8601
+    #end_atはmovieのduration_minから自動算出(持っとく方が便利)
+
+    # 価格情報（基本料金）
     price: Mapped[int] = mapped_column(Integer, nullable=False)
 
+    # Movieとの関連付け
     movie: Mapped["Movie"] = relationship(back_populates="shows")
-    tickets: Mapped[list["Ticket"]] = relationship(back_populates="show")
+
+    # ticketとの関連付け + showが消えると自動で対応するticketも消える 
+    tickets: Mapped[list["Ticket"]] = relationship(
+        back_populates="show",
+        cascade="all, delete-orphan",
+    )
 
 
 class Ticket(Base):
@@ -51,7 +71,7 @@ class Ticket(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
 
-    # QRに入れる一意ID
+    # QRに入れる一意ID、当日改札の照合用
     uuid: Mapped[str] = mapped_column(String, nullable=False, unique=True)
 
     show_id: Mapped[int] = mapped_column(ForeignKey("shows.id"), nullable=False)
@@ -62,23 +82,26 @@ class Ticket(Base):
     sex: Mapped[str | None] = mapped_column(String, nullable=True)
     is_member: Mapped[int] = mapped_column(Integer, nullable=False, default=0)  # 0/1
 
-    # 内訳をJSON文字列で保持（例: '{"adult":1,"child":1}'）
+    # 人員内訳をJSON文字列で保持（例: '{"adult":1,"child":1}'）
     breakdown_json: Mapped[str] = mapped_column(String, nullable=False, default="{}")
 
     sum_price: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
 
-    # 改札用に最低限（使う/使わないは後で決めてOK）
+    # 改札用に、発行・使用日時を保持
     issued_at: Mapped[str | None] = mapped_column(String, nullable=True)
     used_at: Mapped[str | None] = mapped_column(String, nullable=True)
 
+    # Showとの関連付け
     show: Mapped["Show"] = relationship(back_populates="tickets")
 
+    # TicketSeatとの関連付け + ticketが消えると自動で対応するticket_seatも消える
     seats: Mapped[list["TicketSeat"]] = relationship(
         back_populates="ticket",
         cascade="all, delete-orphan",
     )
 
-
+# 予約された座席情報
+# 同一showで同一seatを二重予約できないように設定
 class TicketSeat(Base):
     __tablename__ = "ticket_seats"
     __table_args__ = (
@@ -88,9 +111,11 @@ class TicketSeat(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
 
+    # 親子関係の定義
     ticket_id: Mapped[int] = mapped_column(ForeignKey("tickets.id"), nullable=False)
     show_id: Mapped[int] = mapped_column(ForeignKey("shows.id"), nullable=False)
 
+    # 
     seat: Mapped[str] = mapped_column(String, nullable=False)  # "A-1" 等
 
     ticket: Mapped["Ticket"] = relationship(back_populates="seats")
