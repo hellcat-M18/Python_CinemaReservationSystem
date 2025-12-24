@@ -23,6 +23,9 @@ class Movie(Base):
     title: Mapped[str] = mapped_column(String, nullable=False)
     duration_min: Mapped[int] = mapped_column(Integer, nullable=False)
 
+    # 映画ごとの基本料金（Show生成時の初期値として使う想定）
+    default_price: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+
     # JSON文字列を入れる想定（例: '["action","comedy"]'）
     tags_json: Mapped[str] = mapped_column(String, nullable=False, default="[]")
 

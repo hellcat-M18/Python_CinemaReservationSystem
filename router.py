@@ -57,7 +57,7 @@ def _resolve_next_page(current: str, session: Session, result: PageReturn) -> tu
 
     # ログインページからの遷移の場合
     if current == "login":
-        role = session.get("userRole")
+        role = session.get("user_role")
 
         # 対応するメニュー画面へ振り分け、なければ終了
         if role == "Admin": 

@@ -1,59 +1,59 @@
-import rich
 from rich.console import Console
 
 console = Console()
 
-
+# ログインページ
+# この関数はsessionという名前のdictを受け取って、dictを返すよ、というヒント
 def run(session: dict) -> dict:
-    """ログイン画面。
 
-    - router.py が画面クリアを担当する前提
-    - session["next_page"] をセットするとルーターが遷移する
-    """
-
-    # 古いキーが残っていても破綻しないように掃除
-    session.pop("nextPage", None)
+    # 古いキーが残っていても破綻しないように掃除(安全策)
+    session.pop("next_page", None)
 
     while True:
-        user_name = input("Enter your name (or 'exit'): ").strip()
+        user_name = input("Enter your name (or 'exit'): ").strip() # strip(): 前後の空白を削除
 
+        # "exit"が入力されたら終了
         if user_name.lower() == "exit":
-            session["userRole"] = None
-            session["userName"] = None
+            session["user_role"] = None
+            session["user_name"] = None
             session["next_page"] = "exit"
             return session
 
+        # 何も入力されなかったら先頭に戻る
         if not user_name:
             console.print("[red]Name is required.[/red]")
             continue
 
-        # Admin login
+        # Adminとしてログイン
         if user_name == "admin":
             password = input("Enter your password (or 'back'): ")
             if password.lower() == "back":
                 continue
 
-            if password == "password123":
+            # 認証完了
+            if password == "password123":   # あとでenvに移す
                 console.print("Access Granted!")
-                session["userRole"] = "Admin"
-                session["userName"] = user_name
+                session["user_role"] = "Admin"
+                session["user_name"] = user_name
                 session["next_page"] = "admin_menu"
                 return session
 
+            # 認証失敗、再試行確認
             console.print("[red]Access Denied![/red] Incorrect password.")
             retry = input("Retry? (y/n): ").strip().lower()
             if retry == "y":
                 continue
-
-            session["userRole"] = None
-            session["userName"] = None
+            
+            # noなら終了
+            session["user_role"] = None
+            session["user_name"] = None
             session["next_page"] = "exit"
             return session
 
-        # User login (simple)
+        # Userとしてログイン
         console.print(f"Welcome, [#00ff00]{user_name}[/]!")
-        session["userRole"] = "User"
-        session["userName"] = user_name
+        session["user_role"] = "User"
+        session["user_name"] = user_name
         session["next_page"] = "user_menu"
         return session
 # run({})
