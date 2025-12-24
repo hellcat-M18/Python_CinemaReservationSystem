@@ -3,8 +3,8 @@ from rich.console import Console
 from sqlalchemy import select
 
 from db.db import SessionLocal
-from db.models import Movie, Show, TicketSeat
-from utils.hallLayout import render_vacancy_table
+from db.models import Movie, Show, TicketSeat  # movie, Show, TicketSeatモデルをインポート
+from utils.hallLayout import get_all_seats, render_vacancy_table  # ホールレイアウト表示ユーティリティ
 
 console = Console()
 
@@ -15,9 +15,10 @@ def run(session: dict) -> dict:
 
     console.print("[bold]UserSeatSelect[/bold]")
 
+    # 上映回の選択画面からshow_idを受け取る
     show_id = session.get("show_id")
     if show_id is None:
-        raw = input("show_idを入力してください: ").strip()
+        raw = input("show_idを入力してください: ").strip()# 通常のパスではここには来ないはず
         if raw == "":
             session["next_page"] = "user_menu"
             return session
@@ -28,7 +29,9 @@ def run(session: dict) -> dict:
         show_id = int(raw)
         session["show_id"] = show_id
 
+    # DBから上映回情報と予約済み座席を取得
     with SessionLocal() as db_session:
+        # showの情報を取得
         show = db_session.execute(select(Show).where(Show.id == show_id)).scalar_one_or_none()
         if show is None:
             console.print("[red]指定されたshow_idが見つかりません。[/red]")
@@ -36,9 +39,11 @@ def run(session: dict) -> dict:
             session["next_page"] = "user_menu"
             return session
 
+        # 上映タイトルの情報を取得
         movie = db_session.execute(select(Movie).where(Movie.id == show.movie_id)).scalar_one_or_none()
         movie_title = movie.title if movie is not None else "(unknown)"
 
+        # 予約済み座席のリストを取得
         reserved = (
             db_session.execute(select(TicketSeat.seat).where(TicketSeat.show_id == show.id))
             .scalars()
@@ -49,6 +54,50 @@ def run(session: dict) -> dict:
     console.print(f"上映: show_id={show.id} hall={show.hall} start_at={show.start_at}")
     render_vacancy_table(console, hall=show.hall, reserved=reserved)
 
-    input("Enterでメニューに戻ります... ")
-    session["next_page"] = "user_menu"
-    return session
+    # ホールのレイアウトを取得
+    try:
+        all_seats = get_all_seats(show.hall)
+    except FileNotFoundError as exc:
+        console.print(f"[red]{exc}[/red]")
+        input("Enterでメニューに戻ります... ")
+        session["next_page"] = "user_menu"
+        return session
+
+    reserved_set = {s.strip().upper() for s in reserved}
+
+    # 座席入力（カンマ区切り）
+    while True:
+        raw = input("座席を入力してください（例: A-1,A-2 / bで戻る）: ").strip()
+        if raw.lower() in {"b", "back"}:
+            session.pop("selected_seats", None)
+            session["next_page"] = "user_show_select"
+            return session
+
+        tokens = [t.strip().upper() for t in raw.split(",") if t.strip() != ""]
+        if not tokens:
+            console.print("[red]座席を1つ以上入力してください。[/red]")
+            continue
+
+        # 重複排除しつつ順序を保つ
+        normalized: list[str] = []
+        seen: set[str] = set()
+        for t in tokens:
+            if t not in seen:
+                normalized.append(t)
+                seen.add(t)
+
+        # 存在チェックと予約済みチェック
+        invalid = [t for t in normalized if t not in all_seats]
+        if invalid:
+            console.print(f"[red]存在しない座席があります: {', '.join(invalid)}[/red]")
+            continue
+
+        taken = [t for t in normalized if t in reserved_set]
+        if taken:
+            console.print(f"[red]すでに予約済みの座席があります: {', '.join(taken)}[/red]")
+            continue
+        
+        # 決済へ進む
+        session["selected_seats"] = normalized
+        session["next_page"] = "user_checkout"
+        return session

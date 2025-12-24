@@ -1,13 +1,13 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
-from pathlib import Path
-from typing import Iterable
+from dataclasses import dataclass # dataclass: クラスの定義を簡潔に書くためのモジュール。__init__などを自動で生成してくれる。
+from pathlib import Path          # ファイルパス操作用モジュール
+from typing import Iterable       # 型ヒント用モジュール
 
-from rich.console import Console
-from rich.table import Table
+from rich.console import Console  # richライブラリのConsoleクラスをインポート
+from rich.table import Table      # richライブラリのTableクラスをインポート
 
-
+# 映画館のホールレイアウトを扱うユーティリティ
 @dataclass(frozen=True)
 class HallLayout:
     hall: str
@@ -19,6 +19,7 @@ class HallLayout:
         seat_ids: list[str] = []
         row_letter_ord = ord("A")
 
+        # 行ごとに処理 | enumerate: リストをインデックス付きでループするための組み込み関数
         for row_index, raw in enumerate(self.lines):
             line = raw.rstrip("\n")
             if line.strip() == "":
@@ -32,12 +33,12 @@ class HallLayout:
                     seat_ids.append(f"{row_letter}-{col_no}")
         return seat_ids
 
-
+# レイアウトファイルの格納ディレクトリを取得
 def _layouts_dir() -> Path:
     # utils/ の1つ上がプロジェクトルート想定
     return Path(__file__).resolve().parent.parent / "layouts"
 
-
+# ホールのレイアウトをファイルから読み込む
 def load_layout(hall: str) -> HallLayout:
     path = _layouts_dir() / f"{hall}.txt"
     if not path.exists():
@@ -46,12 +47,12 @@ def load_layout(hall: str) -> HallLayout:
     lines = path.read_text(encoding="utf-8").splitlines()
     return HallLayout(hall=hall, lines=lines)
 
-
+# ホール内の全座席IDを取得
 def get_all_seats(hall: str) -> set[str]:
     layout = load_layout(hall)
     return set(layout.seat_ids())
 
-
+# ホールの空席/予約済み席を表形式で表示
 def render_vacancy_table(
     console: Console,
     hall: str,
@@ -67,6 +68,7 @@ def render_vacancy_table(
     table.add_column("席数", justify="right")
     table.add_column("席一覧（先頭のみ）", justify="left")
 
+    # 座席一覧のプレビュー表示用関数
     def _preview(items: list[str], n: int = 20) -> str:
         if len(items) <= n:
             return ", ".join(items)
