@@ -13,6 +13,8 @@ from pages import (
     AdminScheduleConfirm,
     AdminScheduleEdit,
     UserCheckout,
+    UserCancelTicket,
+    UserReservationList,
     UserMenu,
     UserMovieBrowse,
     UserSeatSelect,
@@ -69,7 +71,7 @@ def _resolve_next_page(current: str, session: Session, result: PageReturn) -> tu
     # If a page doesn't specify a next page yet, stop instead of looping forever.
     return None, session
 
-
+# メインルーター関数
 def run_router() -> None:
     pages: dict[str, PageFn] = {
         "login": login.run,
@@ -86,6 +88,8 @@ def run_router() -> None:
         "user_seat_select": UserSeatSelect.run,
         "user_checkout": UserCheckout.run,
         "user_ticket_qr": UserTicketQR.run,
+        "user_cancel_ticket": UserCancelTicket.run,
+        "user_reservation_list": UserReservationList.run,
         "exit": lambda s: ("exit", s),
     }
 

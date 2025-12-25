@@ -5,6 +5,7 @@ from sqlalchemy import select
 
 from db.db import SessionLocal
 from db.models import Movie, Show
+from utils.datetimeFormat import format_ymd_hm
 
 console = Console()
 
@@ -57,7 +58,14 @@ def run(session: dict) -> dict:
 
     # 上映回一覧をテーブルに追加
     for i, s in enumerate(shows, start=1):
-        table.add_row(str(i), str(s.id), s.start_at, s.end_at, s.hall, str(s.price))
+        table.add_row(
+            str(i),
+            str(s.id),
+            format_ymd_hm(s.start_at),
+            format_ymd_hm(s.end_at),
+            s.hall,
+            str(s.price),
+        )
 
     console.print(table)
 

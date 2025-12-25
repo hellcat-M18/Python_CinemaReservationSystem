@@ -17,7 +17,9 @@ def run(session: dict) -> dict:
     while True:
         console.print("\n[bold]操作を選んでください[/bold]")
         console.print("  1) 映画一覧を見る / 予約する")
-        console.print("  2) チケットQRを表示(UUID手入力)")
+        console.print("  2) チケットQRを表示(本来ならQRコードリーダーで読み取る)")
+        console.print("  3) チケットをキャンセル(予約一覧から番号指定)")
+        console.print("  4) 予約一覧を見る(ログイン名から自動表示)")
         console.print("  9) ログアウト")
         console.print("  0) 終了")
 
@@ -36,6 +38,16 @@ def run(session: dict) -> dict:
 
             session["ticket_uuid"] = ticket_uuid
             session["next_page"] = "user_ticket_qr"
+            return session
+
+        # 3ならチケットキャンセルへ
+        if choice == "3":
+            session["next_page"] = "user_cancel_ticket"
+            return session
+
+        # 4なら予約一覧へ
+        if choice == "4":
+            session["next_page"] = "user_reservation_list"
             return session
 
         # 9ならログアウト

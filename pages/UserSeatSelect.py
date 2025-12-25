@@ -4,7 +4,8 @@ from sqlalchemy import select
 
 from db.db import SessionLocal
 from db.models import Movie, Show, TicketSeat  # movie, Show, TicketSeatモデルをインポート
-from utils.hallLayout import get_all_seats, render_vacancy_table  # ホールレイアウト表示ユーティリティ
+from utils.hallLayout import get_all_seats, render_seat_map  # ホールレイアウト表示ユーティリティ
+from utils.datetimeFormat import format_ymd_hm
 
 console = Console()
 
@@ -51,8 +52,8 @@ def run(session: dict) -> dict:
         )
 
     console.print(f"\n映画: {movie_title}")
-    console.print(f"上映: show_id={show.id} hall={show.hall} start_at={show.start_at}")
-    render_vacancy_table(console, hall=show.hall, reserved=reserved)
+    console.print(f"上映: show_id={show.id} hall={show.hall} start_at={format_ymd_hm(show.start_at)}")
+    render_seat_map(console, hall=show.hall, reserved=reserved)
 
     # ホールのレイアウトを取得
     try:
@@ -65,9 +66,32 @@ def run(session: dict) -> dict:
 
     reserved_set = {s.strip().upper() for s in reserved}
 
+    # 購入枚数（座席数）を入力
+    while True:
+        raw_cnt = input("購入枚数(座席数) [1] (bで戻る): ").strip().lower()
+        if raw_cnt in {"b", "back"}:
+            session.pop("selected_seats", None)
+            session["next_page"] = "user_show_select"
+            return session
+        if raw_cnt == "":
+            seat_count = 1
+            break
+        if not raw_cnt.isdigit():
+            console.print("[red]数字を入力してください。[/red]")
+            continue
+        seat_count = int(raw_cnt)
+        if seat_count <= 0:
+            console.print("[red]1以上で入力してください。[/red]")
+            continue
+        break
+
+    session["seat_count"] = seat_count
+
     # 座席入力（カンマ区切り）
     while True:
-        raw = input("座席を入力してください（例: A-1,A-2 / bで戻る）: ").strip()
+        raw = input(
+            f"座席を{seat_count}個入力してください（例: A-1,A-2 / bで戻る）: "
+        ).strip()
         if raw.lower() in {"b", "back"}:
             session.pop("selected_seats", None)
             session["next_page"] = "user_show_select"
@@ -87,6 +111,12 @@ def run(session: dict) -> dict:
                 seen.add(t)
 
         # 存在チェックと予約済みチェック
+        if len(normalized) != seat_count:
+            console.print(
+                f"[red]座席数が一致しません（入力={len(normalized)} / 必要={seat_count}）。[/red]"
+            )
+            continue
+
         invalid = [t for t in normalized if t not in all_seats]
         if invalid:
             console.print(f"[red]存在しない座席があります: {', '.join(invalid)}[/red]")

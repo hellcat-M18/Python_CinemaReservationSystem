@@ -202,6 +202,8 @@ def run(session: dict) -> dict:
             issued_at=issued_at,
         )
 
+        ticket_uuid = str(ticket.uuid)
+
         # 登録実行
         try:
             # DBへの書き込みをリクエスト
@@ -234,6 +236,6 @@ def run(session: dict) -> dict:
             return session
 
     # チケット表示へ遷移
-    session["ticket_uuid"] = ticket.uuid
+    session["ticket_uuid"] = ticket_uuid
     session["next_page"] = "user_ticket_qr"
     return session

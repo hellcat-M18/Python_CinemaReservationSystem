@@ -17,20 +17,23 @@ class HallLayout:
         # レイアウトの'#'だけを座席として扱う
         # 座席IDは "A-1" 形式（行=英字、列=その行の座席番号）
         seat_ids: list[str] = []
-        row_letter_ord = ord("A")
 
-        # 行ごとに処理 | enumerate: リストをインデックス付きでループするための組み込み関数
-        for row_index, raw in enumerate(self.lines):
+        # 行ラベルは「空行を除いた行番号」で連番にする
+        row_no = 0
+        for raw in self.lines:
             line = raw.rstrip("\n")
             if line.strip() == "":
                 continue
 
-            row_letter = chr(row_letter_ord + row_index)
+            row_letter = chr(ord("A") + row_no)
+            row_no += 1
+
             col_no = 0
             for ch in line:
                 if ch == "#":
                     col_no += 1
                     seat_ids.append(f"{row_letter}-{col_no}")
+
         return seat_ids
 
 # レイアウトファイルの格納ディレクトリを取得
@@ -77,4 +80,57 @@ def render_vacancy_table(
     table.add_row("空席", str(len(available)), _preview(available))
     table.add_row("予約済", str(len(reserved_set)), _preview(sorted(reserved_set)))
 
+    console.print(table)
+
+
+def render_seat_map(
+    console: Console,
+    hall: str,
+    reserved: Iterable[str],
+) -> None:
+    # レイアウトを「席の配置っぽく」表形式で表示する
+    # - # : 座席
+    # - . : 通路
+    # 表示は seat_id を色分け（空席=緑、予約済=赤）
+
+    layout = load_layout(hall)
+    reserved_set = {str(s).strip().upper() for s in reserved}
+
+    # 表示対象行（空行は除外）
+    rows = [ln for ln in layout.lines if ln.strip() != ""]
+    if not rows:
+        console.print("[yellow]レイアウトが空です。[/yellow]")
+        return
+
+    max_cols = max(len(r) for r in rows)
+
+    # 表形式で表示
+    table = Table(title=f"Hall {hall} 座席表", show_header=True)
+    table.add_column("列")
+    for i in range(1, max_cols + 1):
+        table.add_column(str(i), justify="center")
+
+    for row_no, line in enumerate(rows):
+        row_letter = chr(ord("A") + row_no)
+        col_no = 0
+        
+        # 予約の有無で色分けして表示
+        cells: list[str] = [row_letter]
+        for x in range(max_cols):
+            ch = line[x] if x < len(line) else " "
+            if ch == "#":
+                col_no += 1
+                seat_id = f"{row_letter}-{col_no}"
+                if seat_id.upper() in reserved_set:
+                    cells.append(f"[red]{seat_id}[/red]")
+                else:
+                    cells.append(f"[green]{seat_id}[/green]")
+            elif ch == ".":
+                cells.append(" ")
+            else:
+                cells.append(" ")
+
+        table.add_row(*cells)
+
+    console.print("[green]緑=空席[/green]  [red]赤=予約済[/red]")
     console.print(table)
