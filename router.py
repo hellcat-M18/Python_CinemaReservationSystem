@@ -1,7 +1,7 @@
 from __future__ import annotations  #後のバージョンのPythonの機能を先取りして使うための記述 
 
 import os
-from typing import Callable, Tuple, Union   #型ヒントのモジュール
+from typing import Callable   #型ヒントのモジュール
 
 # 各ページをフォルダからインポート
 from pages import (
@@ -24,30 +24,18 @@ from pages import (
 )
 
 Session = dict
-PageReturn = Union[
-    Session,  # 状況を示すSessionオブジェクト
-    str,  #　遷移先のページを返す
-    Tuple[str, Session],  # 上記のペア
-]
 
-#Callableは型ヒントの一環。PageFnがSessionを引数に取り、PageReturnを返す関数であることを示す。
-PageFn = Callable[[Session], PageReturn]
+#Callableは型ヒントの一環。PageFnがSessionを引数に取り、更新後のSessionを返す関数であることを示す。
+PageFn = Callable[[Session], Session]
 
 # コマンドラインのクリア
 def _clear_screen() -> None:
     os.system("cls" if os.name == "nt" else "clear")
 
 
-def _resolve_next_page(current: str, session: Session, result: PageReturn) -> tuple[str | None, Session]:
+def _resolve_next_page(current: str, session: Session, result: Session) -> tuple[str | None, Session]:
 
-    # isinstance:オブジェクトの構造を確認する関数。
-    if isinstance(result, tuple) and len(result) == 2:
-        next_page, new_session = result
-        return next_page, new_session
-
-    if isinstance(result, str):
-        return result, session
-
+    # ページから返ってきたSessionでセッションを更新
     if isinstance(result, dict):
         session = result
 

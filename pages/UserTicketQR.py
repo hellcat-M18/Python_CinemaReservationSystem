@@ -33,6 +33,13 @@ def run(session: dict) -> dict:
             session["next_page"] = "user_menu"
             return session
 
+        # ユーザー側には使用済みチケットを見せない
+        if ticket.used_at:
+            console.print("[yellow]このチケットは使用済みのため表示できません。[/yellow]")
+            input("Enterでメニューに戻ります... ")
+            session["next_page"] = "user_menu"
+            return session
+
         # 関連する上映・映画情報を取得
         show = db_session.execute(select(Show).where(Show.id == ticket.show_id)).scalar_one_or_none()
         movie = None
@@ -50,7 +57,8 @@ def run(session: dict) -> dict:
         )
 
     # 表示
-    console.print(f"UUID: [bold]{ticket.uuid}[/bold]")
+    console.print("\n[yellow]UUIDは照合のために保管をお願いします。[/yellow]")
+    console.print(f"UUID: [bold]{ticket.uuid}[/bold]\n")
 
     purchaser = Table(title="購入者情報")
     purchaser.add_column("項目")

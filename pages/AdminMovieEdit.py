@@ -1,4 +1,5 @@
 from rich.console import Console
+from rich.table import Table
 
 from sqlalchemy import select   # DB操作用、Select文
 
@@ -44,6 +45,20 @@ def run(session: dict) -> dict:
                 input("Enterで一覧に戻ります... ")
                 session["next_page"] = "admin_movie_list"
                 return session
+
+            # 編集モード: 現在の登録情報を一覧表示
+            info = Table(title="現在の登録情報")
+            info.add_column("項目")
+            info.add_column("値")
+            info.add_row("id", str(movie.id))
+            info.add_row("title", movie.title)
+            info.add_row("duration_min", str(movie.duration_min))
+            info.add_row("default_price", str(movie.default_price))
+            info.add_row("description", movie.description or "-")
+            info.add_row("tags_json", movie.tags_json)
+            info.add_row("run_start_date", movie.run_start_date or "-")
+            info.add_row("run_end_date", movie.run_end_date or "-")
+            console.print(info)
 
         # 入力補助
         # 入力ラベルを表示し、ユーザーからの入力を待つ。

@@ -38,7 +38,7 @@ def run(session: dict) -> dict:
         tickets = (
             db_session.execute(
                 select(Ticket)
-                .where(Ticket.user_name == user_name)
+                .where(Ticket.user_name == user_name, Ticket.used_at.is_(None))
                 .order_by(Ticket.issued_at.desc().nullslast(), Ticket.id.desc())
             )
             .scalars()
