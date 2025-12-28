@@ -19,26 +19,19 @@ def run(session: dict) -> dict:
 
     console.print("[bold][UserReservationList][/bold]")
 
-    # 名前をセッションから取得、なければ入力
+    user_id = session.get("user_id")
     user_name = (session.get("user_name") or "").strip()
-    if not user_name:
-        user_name = input("名前が未設定です。名前を入力してください (bで戻る): ").strip()
-        if user_name.lower() in {"b", "back"}:
-            session["next_page"] = "user_menu"
-            return session
-        if not user_name:
-            console.print("[yellow]名前が未入力のため検索できません。[/yellow]")
-            input("Enterでメニューに戻ります... ")
-            session["next_page"] = "user_menu"
-            return session
-        session["user_name"] = user_name
+    if not isinstance(user_id, str) or not user_id.strip() or not user_name:
+        console.print("[yellow]ログインが必要です。ログイン画面に戻ります。[/yellow]")
+        session["next_page"] = "login"
+        return session
 
     # DBからチケット一覧を取得
     with SessionLocal() as db_session:
         tickets = (
             db_session.execute(
                 select(Ticket)
-                .where(Ticket.user_name == user_name, Ticket.used_at.is_(None))
+                .where(Ticket.user_id == str(user_id), Ticket.used_at.is_(None))
                 .order_by(Ticket.issued_at.desc().nullslast(), Ticket.id.desc())
             )
             .scalars()

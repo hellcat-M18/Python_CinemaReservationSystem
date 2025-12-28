@@ -24,6 +24,10 @@ def run(session: dict) -> dict:
         session["next_page"] = "user_menu"
         return session
 
+    # ログイン済みユーザーは「自分のチケットのみ」表示
+    user_role = session.get("user_role")
+    user_id = session.get("user_id")
+
     # DB照合してチケット詳細を表示
     with SessionLocal() as db_session:
         ticket = db_session.execute(select(Ticket).where(Ticket.uuid == str(ticket_uuid))).scalar_one_or_none()
@@ -32,6 +36,13 @@ def run(session: dict) -> dict:
             input("Enterでメニューに戻ります... ")
             session["next_page"] = "user_menu"
             return session
+
+        if user_role == "User" and isinstance(user_id, str) and user_id.strip():
+            if str(ticket.user_id) != str(user_id):
+                console.print("[yellow]このチケットはあなたのアカウントに紐づいていないため表示できません。[/yellow]")
+                input("Enterでメニューに戻ります... ")
+                session["next_page"] = "user_menu"
+                return session
 
         # ユーザー側には使用済みチケットを見せない
         if ticket.used_at:

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import uuid
+
 from sqlalchemy import (
     ForeignKey,
     Integer,
@@ -14,6 +16,30 @@ class Base(DeclarativeBase):
 
 
 #DBのテーブル定義
+
+
+class User(Base):
+    __tablename__ = "users"
+
+    # UUID文字列を主キーにする（作り直し前提なのでマイグレーション不要）
+    id: Mapped[str] = mapped_column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+
+    # ログインID（ユニーク）
+    username: Mapped[str] = mapped_column(String, nullable=False, unique=True)
+
+    # passlib等で生成したハッシュを保存
+    password_hash: Mapped[str] = mapped_column(String, nullable=False)
+
+    # "Admin" / "User"
+    role: Mapped[str] = mapped_column(String, nullable=False, default="User")
+
+    created_at: Mapped[str | None] = mapped_column(String, nullable=True)
+
+    # Ticketとの関連
+    tickets: Mapped[list["Ticket"]] = relationship(
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
 
 class Movie(Base):
     __tablename__ = "movies"
@@ -79,6 +105,9 @@ class Ticket(Base):
 
     show_id: Mapped[int] = mapped_column(ForeignKey("shows.id"), nullable=False)
 
+    # 誰のチケットか（認証導入に伴い必須）
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id"), nullable=False)
+
     # user info（必要なものだけ）
     user_name: Mapped[str | None] = mapped_column(String, nullable=True)
     age: Mapped[int | None] = mapped_column(Integer, nullable=True)
@@ -96,6 +125,9 @@ class Ticket(Base):
 
     # Showとの関連付け
     show: Mapped["Show"] = relationship(back_populates="tickets")
+
+    # Userとの関連付け
+    user: Mapped["User"] = relationship(back_populates="tickets")
 
     # TicketSeatとの関連付け + ticketが消えると自動で対応するticket_seatも消える
     seats: Mapped[list["TicketSeat"]] = relationship(

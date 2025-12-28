@@ -1,5 +1,5 @@
-from db import init_db
+from db import reset_db
 
 if __name__ == "__main__":
-    init_db()
-    print("OK: created tables in cinema.db")
+    reset_db(remove_file=True)
+    print("OK: reset tables in cinema.db")

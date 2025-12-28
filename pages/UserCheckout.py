@@ -36,6 +36,13 @@ def run(session: dict) -> dict:
 
     console.print("[bold][UserCheckout][/bold]")
 
+    user_id = session.get("user_id")
+    user_name = (session.get("user_name") or "").strip()
+    if not isinstance(user_id, str) or not user_id.strip() or not user_name:
+        console.print("[yellow]ログインが必要です。ログイン画面に戻ります。[/yellow]")
+        session["next_page"] = "login"
+        return session
+
     show_id = session.get("show_id")
     selected_seats = session.get("selected_seats")
 
@@ -78,11 +85,8 @@ def run(session: dict) -> dict:
                 return default
             return raw
 
-    # 名前入力
-    user_name = session.get("user_name")
-    if not user_name:
-        user_name = _prompt_str("名前(空Enterで省略)", None, required=False)
-        session["user_name"] = user_name
+    # 名前はログインユーザーIDを使用（Ticket表示用に保存）
+    # ※ 認証導入後は、購入者の識別は user_id で行う
 
     # 追加のユーザー情報
     age = session.get("age")
@@ -193,6 +197,7 @@ def run(session: dict) -> dict:
         ticket = Ticket(
             uuid=str(uuid.uuid4()),
             show_id=show.id,
+            user_id=str(user_id),
             user_name=user_name,
             age=age,
             sex=sex,

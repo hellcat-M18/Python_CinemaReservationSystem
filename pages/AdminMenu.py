@@ -44,6 +44,7 @@ def run(session: dict) -> dict:
         if choice == "9":
             session["user_role"] = None
             session["user_name"] = None
+            session["user_id"] = None
             session.pop("ticket_uuid", None)
             session["next_page"] = "login"
             return session
