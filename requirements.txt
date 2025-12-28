@@ -2,7 +2,3 @@
 SQLAlchemy==2.0.45
 rich==14.2.0
 qrcode==8.2
-
-# Used in some parts / future expansions (safe to keep)
-pandas==2.3.3
-pydantic==2.12.5

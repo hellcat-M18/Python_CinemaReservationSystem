@@ -59,5 +59,9 @@ def run(session: dict) -> dict:
         # movie_idをセットして上映回選択へ
         movie = movies[idx - 1]
         session["movie_id"] = movie.id
-        session["next_page"] = "user_show_select"
+        # 映画を変えたときは前回のカレンダー/日付選択をリセット
+        session.pop("selected_date", None)
+        session.pop("calendar_year", None)
+        session.pop("calendar_month", None)
+        session["next_page"] = "user_show_calendar"
         return session

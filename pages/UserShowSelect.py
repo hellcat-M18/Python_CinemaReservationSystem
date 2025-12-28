@@ -1,6 +1,8 @@
 from rich.console import Console
 from rich.table import Table
 
+from datetime import datetime, timedelta
+
 from sqlalchemy import select
 
 from db.db import SessionLocal
@@ -13,6 +15,7 @@ console = Console()
 def run(session: dict) -> dict:
     # 上映回選択
     # - session["movie_id"] のshowsを表示し、番号選択で show_id をセットして座席へ
+    # - session["selected_date"] (YYYY-MM-DD) があれば、その日の上映回だけに絞る
 
     console.print("[bold]UserShowSelect[/bold]")
 
@@ -24,27 +27,45 @@ def run(session: dict) -> dict:
         session["next_page"] = "user_movie_browse"
         return session
 
+    selected_date = session.get("selected_date")
+    if selected_date is not None and not isinstance(selected_date, str):
+        selected_date = None
+
     # DBから上映回一覧を取得
     with SessionLocal() as db_session:
         movie = db_session.execute(select(Movie).where(Movie.id == movie_id)).scalar_one_or_none()
-        shows = (
-            db_session.execute(
-                select(Show)
-                .where(Show.movie_id == movie_id)
-                .order_by(Show.start_at, Show.hall, Show.id)
-            )
-            .scalars()
-            .all()
-        )
+
+        # selected_date ~ selected_date +1日の範囲で絞り込み
+        stmt = select(Show).where(Show.movie_id == movie_id)
+        if selected_date:
+            try:
+                d0 = datetime.strptime(selected_date, "%Y-%m-%d")
+                d1 = d0 + timedelta(days=1)
+                start0 = d0.strftime("%Y-%m-%dT%H:%M")
+                start1 = d1.strftime("%Y-%m-%dT%H:%M")
+                stmt = stmt.where(Show.start_at >= start0).where(Show.start_at < start1)
+            except Exception:
+                selected_date = None
+
+        # 範囲内に存在する上映回を取得
+        shows = db_session.execute(stmt.order_by(Show.start_at, Show.hall, Show.id)).scalars().all()
 
     movie_title = movie.title if movie is not None else "(unknown)"
-    console.print(f"映画: {movie_title} (movie_id={movie_id})")
+    if selected_date:
+        console.print(f"映画: {movie_title} (movie_id={movie_id})  日付: {selected_date}")
+    else:
+        console.print(f"映画: {movie_title} (movie_id={movie_id})")
 
     # 上映回がなければ戻る
     if not shows:
-        console.print("[yellow]上映回がありません。管理者がスケジュールを作成してください。[/yellow]")
-        input("Enterで映画一覧に戻ります... ")
-        session["next_page"] = "user_movie_browse"
+        if selected_date:
+            console.print("[yellow]その日の上映回がありません。[/yellow]")
+            input("Enterでカレンダーに戻ります... ")
+            session["next_page"] = "user_show_calendar"
+        else:
+            console.print("[yellow]上映回がありません。管理者がスケジュールを作成してください。[/yellow]")
+            input("Enterで映画一覧に戻ります... ")
+            session["next_page"] = "user_movie_browse"
         return session
 
     # richでテーブル作成
@@ -74,7 +95,7 @@ def run(session: dict) -> dict:
         raw = input("選択してください (番号 / bで戻る): ").strip().lower()
         # bなら戻る
         if raw in {"b", "back"}:
-            session["next_page"] = "user_movie_browse"
+            session["next_page"] = "user_show_calendar" if selected_date else "user_movie_browse"
             return session
         # 数値チェック
         if not raw.isdigit():

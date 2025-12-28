@@ -18,8 +18,6 @@ Google Colabの場合
 - SQLAlchemy==2.0.45
 - rich==14.2.0
 - qrcode==8.2
-- pandas==2.3.3
-- pydantic==2.12.5
 
 ## 使い方
 wip
