@@ -9,7 +9,8 @@ def run(session: dict) -> dict:
 
     user_name = session.get("user_name")
     if user_name:
-        console.print(f"[bold][AdminMenu][/bold] こんにちは、{user_name} さん")
+        console.print(f"[bold][AdminMenu][/bold]")
+        console.print(f"こんにちは、{user_name} さん")
     else:
         console.print("[bold][AdminMenu][/bold]")
 
