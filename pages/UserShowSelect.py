@@ -9,7 +9,7 @@ from db.db import SessionLocal
 from db.models import Movie, Show
 from utils.datetimeFormat import format_ymd_hm
 
-console = Console()
+console = Console(highlight=False)
 
 
 def run(session: dict) -> dict:
@@ -17,7 +17,7 @@ def run(session: dict) -> dict:
     # - session["movie_id"] のshowsを表示し、番号選択で show_id をセットして座席へ
     # - session["selected_date"] (YYYY-MM-DD) があれば、その日の上映回だけに絞る
 
-    console.print("[bold]UserShowSelect[/bold]")
+    console.print("[bold][UserShowSelect][/bold]")
 
     # movie_idを遷移元から引き継ぎ
     movie_id = session.get("movie_id")

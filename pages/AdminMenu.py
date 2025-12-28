@@ -1,6 +1,6 @@
 from rich.console import Console
 
-console = Console()
+console = Console(highlight=False)
 
 
 def run(session: dict) -> dict:
@@ -9,9 +9,9 @@ def run(session: dict) -> dict:
 
     user_name = session.get("user_name")
     if user_name:
-        console.print(f"[bold]AdminMenu[/bold] こんにちは、{user_name} さん")
+        console.print(f"[bold][AdminMenu][/bold] こんにちは、{user_name} さん")
     else:
-        console.print("[bold]AdminMenu[/bold]")
+        console.print("[bold][AdminMenu][/bold]")
 
     # 操作候補の表示と入力待ち
     while True:

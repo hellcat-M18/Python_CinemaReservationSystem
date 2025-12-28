@@ -12,7 +12,7 @@ from sqlalchemy import select
 from db.db import SessionLocal
 from db.models import Movie, Show
 
-console = Console()
+console = Console(highlight=False)
 
 
 _MONTH_RE = re.compile(r"^(\d{4})[-/](\d{1,2})$") #YYYY-MM形式の正規表現
@@ -60,7 +60,7 @@ def _render_calendar(year: int, month: int, show_days: set[int]) -> None:
 
 # ページ本体
 def run(session: dict) -> dict:
-    console.print("[bold]UserShowCalendar[/bold]")
+    console.print("[bold][UserShowCalendar][/bold]")
 
     # movie_idを遷移元から引き継ぎ
     movie_id = session.get("movie_id")

@@ -13,7 +13,7 @@ from sqlalchemy.exc import IntegrityError # DB操作用、例外処理
 from db.db import SessionLocal
 from db.models import Movie, Show, Ticket, TicketSeat # DBのmovie, Show, Ticket, TicketSeatモデルをインポート
 
-console = Console()
+console = Console(highlight=False)
 
 
 # 料金ルール（必要ならここだけ触ればOK）
@@ -34,7 +34,7 @@ def run(session: dict) -> dict:
     # 購入/確定（最小）
     # - SeatSelectで選ばれた座席を使って Ticket + TicketSeat を作成する
 
-    console.print("[bold]UserCheckout[/bold]")
+    console.print("[bold][UserCheckout][/bold]")
 
     show_id = session.get("show_id")
     selected_seats = session.get("selected_seats")

@@ -9,7 +9,7 @@ from db.db import SessionLocal
 from db.models import Movie, Show, Ticket, TicketSeat
 from utils.datetimeFormat import format_ymd_hm
 
-console = Console()
+console = Console(highlight=False)
 
 
 def run(session: dict) -> dict:
@@ -17,7 +17,7 @@ def run(session: dict) -> dict:
     # - user_nameで絞り込み（未入力なら入力させる）
     # - キャンセルはTicket削除運用なので、ticketsに残っているものが「現在の予約」
 
-    console.print("[bold]UserReservationList[/bold]")
+    console.print("[bold][UserReservationList][/bold]")
 
     # 名前をセッションから取得、なければ入力
     user_name = (session.get("user_name") or "").strip()

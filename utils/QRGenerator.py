@@ -2,7 +2,7 @@ import qrcode
 from rich.console import Console
 from rich.text import Text
 
-console = Console()
+console = Console(highlight=False)
 
 def print(data: str, border: int = 4):
     """

@@ -5,7 +5,7 @@ from sqlalchemy import select
 from db.db import SessionLocal
 from db.models import Movie
 
-console = Console()
+console = Console(highlight=False)
 
 
 def run(session: dict) -> dict:
@@ -15,7 +15,7 @@ def run(session: dict) -> dict:
     # - 削除後は admin_movie_list に戻る
 
     movie_id = session.get("movie_id")
-    console.print("[bold]AdminMovieDelete[/bold]")
+    console.print("[bold][AdminMovieDelete][/bold]")
 
     # 想定外のアクセス
     if movie_id is None:

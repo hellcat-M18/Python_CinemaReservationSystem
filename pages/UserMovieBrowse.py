@@ -6,14 +6,14 @@ from sqlalchemy import select
 from db.db import SessionLocal
 from db.models import Movie
 
-console = Console()
+console = Console(highlight=False)
 
 
 def run(session: dict) -> dict:
     # 映画一覧（ユーザー向け）
     # - moviesを一覧表示し、番号選択でmovie_idをsessionに入れて次へ
 
-    console.print("[bold]UserMovieBrowse[/bold]")
+    console.print("[bold][UserMovieBrowse][/bold]")
 
     # DBから映画一覧を取得
     with SessionLocal() as db_session:

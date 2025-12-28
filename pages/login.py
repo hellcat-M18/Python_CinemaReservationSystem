@@ -1,6 +1,6 @@
 from rich.console import Console
 
-console = Console()
+console = Console(highlight=False)
 
 # ログインページ
 # この関数はsessionという名前のdictを受け取って、dictを返すよ、というヒント

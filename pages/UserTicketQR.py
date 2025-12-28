@@ -9,14 +9,14 @@ from db.models import Movie, Show, Ticket, TicketSeat
 from utils.datetimeFormat import format_ymd_hm
 from utils import QRGenerator
 
-console = Console()
+console = Console(highlight=False)
 
 
 def run(session: dict) -> dict:
     # チケット表示(QR)
     # 事前に session["ticket_uuid"] が入っている想定(UserMenuで手入力 / 購入後)
 
-    console.print("[bold]UserTicketQR[/bold]")
+    console.print("[bold][UserTicketQR][/bold]")
 
     ticket_uuid = session.get("ticket_uuid")
     if not ticket_uuid:

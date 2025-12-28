@@ -8,7 +8,7 @@ from sqlalchemy import func, select  # DB操作用、集約関数func、Select�
 from db.db import SessionLocal # DB操作のセッションを生成するクラス
 from db.models import Movie, Show, Ticket   # テーブル"Movie", "Show", "Ticket"のモデルをインポート
 
-console = Console()
+console = Console(highlight=False)
 
 
 def run(session: dict) -> dict:
@@ -17,7 +17,7 @@ def run(session: dict) -> dict:
     # - ここで入力されたルールから start_at/end_at を生成し、DBのshowsに差分反映する
     # - 既存showの削除が発生する場合は警告して y/n を取る(yなら該当ticketも抹消される)
 
-    console.print("[bold]AdminScheduleEdit[/bold]")
+    console.print("[bold][AdminScheduleEdit][/bold]")
 
     # 入力補助
     # MovieEditなどにあるのと同じ

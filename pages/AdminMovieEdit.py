@@ -8,7 +8,7 @@ from datetime import date       # 日付を扱うためのモジュール
 from db.db import SessionLocal  # DB操作のセッションを生成するクラス
 from db.models import Movie     # テーブル"Movie"のモデルをインポート
 
-console = Console()
+console = Console(highlight=False)
 
 
 def run(session: dict) -> dict:
@@ -21,9 +21,9 @@ def run(session: dict) -> dict:
 
     # セッションがmovie_idを持たない->追加モード　持つ->編集モード
     if movie_id is None:
-        console.print("[bold]AdminMovieEdit[/bold] (追加)")
+        console.print("[bold][AdminMovieEdit][/bold] (追加)")
     else:
-        console.print(f"[bold]AdminMovieEdit[/bold] (編集) movie_id={movie_id}")
+        console.print(f"[bold][AdminMovieEdit][/bold] (編集) movie_id={movie_id}")
 
     # DBへの接続セッションを作る
     # with: ファイルやDB接続などのリソースを自動的に解放するための構文。処理が終わったら自動的に閉じてくれる。

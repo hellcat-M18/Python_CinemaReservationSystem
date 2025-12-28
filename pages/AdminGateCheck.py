@@ -9,12 +9,12 @@ from db.db import SessionLocal
 from db.models import Movie, Show, Ticket, TicketSeat
 from utils.datetimeFormat import format_ymd_hm
 
-console = Console()
+console = Console(highlight=False)
 
 
 def run(session: dict) -> dict:
     """改札(UUID照合/used_at更新)(管理者向け）"""
-    console.print("[bold]AdminGateCheck[/bold]")
+    console.print("[bold][AdminGateCheck][/bold]")
 
     def _now_iso_min() -> str:
         return datetime.now().strftime("%Y-%m-%dT%H:%M")

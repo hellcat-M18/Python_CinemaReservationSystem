@@ -7,14 +7,14 @@ from db.models import Movie, Show, TicketSeat  # movie, Show, TicketSeatモデ�
 from utils.hallLayout import get_all_seats, render_seat_map  # ホールレイアウト表示ユーティリティ
 from utils.datetimeFormat import format_ymd_hm
 
-console = Console()
+console = Console(highlight=False)
 
 
 def run(session: dict) -> dict:
     # 座席表示（空席/予約済み）
     # 予約作成はまだ未実装なので、まず「見える化」だけ行う
 
-    console.print("[bold]UserSeatSelect[/bold]")
+    console.print("[bold][UserSeatSelect][/bold]")
 
     # 上映回の選択画面からshow_idを受け取る
     show_id = session.get("show_id")

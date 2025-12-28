@@ -7,7 +7,7 @@ from db.db import SessionLocal
 from db.models import Movie, Show, Ticket, TicketSeat
 from utils.datetimeFormat import format_ymd_hm
 
-console = Console()
+console = Console(highlight=False)
 
 
 def run(session: dict) -> dict:
@@ -17,7 +17,7 @@ def run(session: dict) -> dict:
     # - used_at が入っている場合はキャンセル不可
     # - y/n確認後、Ticketを削除（cascadeでticket_seatsも削除）
 
-    console.print("[bold]UserCancelTicket[/bold]")
+    console.print("[bold][UserCancelTicket][/bold]")
 
     # 名前をセッションから取得、なければ入力
     user_name = (session.get("user_name") or "").strip()

@@ -5,7 +5,7 @@ from sqlalchemy import select   # db操作用、Select文
 from db.db import SessionLocal  # DB操作のセッションを生成するクラス
 from db.models import Movie     # テーブル"Movie"のモデルをインポート
 
-console = Console()
+console = Console(highlight=False)
 
 
 def run(session: dict) -> dict:
@@ -14,7 +14,7 @@ def run(session: dict) -> dict:
     # - 数字入力で遷移先を決め、session["next_page"] にセットしてrouterへ返す
     # - 編集/削除は対象movie_idを session["movie_id"] に入れて次ページへ渡す
 
-    console.print("[bold]AdminMovieList[/bold]")
+    console.print("[bold][AdminMovieList][/bold]")
 
     # DBへの接続を試行
     try:
