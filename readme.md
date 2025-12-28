@@ -24,7 +24,7 @@ Google Colabの場合
 ## 環境変数（管理者アカウント）
 管理者ユーザーをDB初期化時に自動作成したい場合は、以下を設定します。
 
-### 方法A: .env（おすすめ・永続化）
+### 方法A: .env（DB初期化時）
 1. プロジェクト直下に `.env` を作成（例は `.env.example`）
 2. 例:
 
@@ -35,14 +35,7 @@ CINEMA_ADMIN_PASSWORD=change_me
 
 `.env` は起動時に [db/db.py](db/db.py) が自動で読み込みます。
 
-### 方法B: スクリプトで一時設定（ターミナル限定）
-### 方法B: スクリプトで .env を更新
-- Windows: `scripts/set_admin_env.bat`
-- Linux/macOS/Git Bash: `bash scripts/set_admin_env.sh`
-
-※ どちらも内部では `scripts/set_admin_env.py` を呼び出して `.env` を更新します。
-
-### DBリセットなしで管理者を追加/変更したい場合
+### 方法B: DBリセットなしで管理者を追加/変更
 既存DBを保持したまま、管理者ユーザーを「追加/パスワード更新」したいときは以下を実行します。
 
 - `python scripts/create_or_update_admin.py`
