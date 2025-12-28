@@ -54,7 +54,7 @@ def main() -> int:
     password = (os.environ.get("CINEMA_ADMIN_PASSWORD") or "").strip()
     if not username or not password:
         print("ERROR: CINEMA_ADMIN_USERNAME / CINEMA_ADMIN_PASSWORD が未設定です。")
-        print("  先に `scripts/set_admin_env.(bat|sh)` か `python scripts/set_admin_env.py` で .env を更新してください。")
+        print("  先に `.env` を更新するか、`python scripts/set_admin_env.py` で .env を更新してください。")
         return 2
 
     # 3) DBへ反映(upsert)

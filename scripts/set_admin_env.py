@@ -37,24 +37,9 @@ def _upsert_kv(lines: list[str], key: str, value: str) -> list[str]:
     return kept
 
 # メイン処理
-def main(argv: list[str]) -> int:
-
-    #環境変数はbat/shから渡す想定
-    username = argv[1].strip() if len(argv) >= 2 else ""
-    password = argv[2].strip() if len(argv) >= 3 else ""
-
-    # 万一環境変数なしで呼ばれた場合はinputで取得する
-    if not username:
-        username = input("Admin username: ").strip()
-    if not username:
-        print("ERROR: username is required", file=sys.stderr)
-        return 2
-
-    if not password:
-        password = getpass("Admin password: ").strip()
-    if not password:
-        print("ERROR: password is required", file=sys.stderr)
-        return 2
+def main() -> int:
+    username = input("Admin username: ").strip()
+    password = getpass("Admin password: ").strip()
 
     # .env ファイルを読み込み、更新して書き戻す
     env_file = _env_path()

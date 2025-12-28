@@ -68,7 +68,7 @@ def run(session: dict) -> dict:
         )
 
     # 表示
-    console.print("\n[yellow]UUIDは照合のために保管をお願いします。[/yellow]")
+    console.print("\n[yellow]UUIDは照合のために保管をお願いします[/yellow]")
     console.print(f"UUID: [bold]{ticket.uuid}[/bold]\n")
 
     purchaser = Table(title="購入者情報")

@@ -3,16 +3,13 @@
 
 ## セットアップ
 Windowsの場合
-1. scripts/setup_local.batを実行
-2. scripts/run_router.batで起動(venv)
+1. `python scripts/setup.py`
+2. `scripts\run.bat`
 
 Linuxの場合
-1. scripts/setup_local.shを実行
-2. scripts/run_router.shで起動(venv)
+1. `python3 scripts/setup.py`
+2. `bash scripts/run.sh`
 
-Google Colabの場合
-1. ! pip install -r requirements.txt を実行
-2. ! python Python_CinemaReservationSystem/router.py を実行して起動
 
 ## 依存関係
 - SQLAlchemy==2.0.45
@@ -33,7 +30,7 @@ CINEMA_ADMIN_USERNAME=admin
 CINEMA_ADMIN_PASSWORD=change_me
 ```
 
-`.env` は起動時に [db/db.py](db/db.py) が自動で読み込みます。
+`.env` はDB初期化時に [db/db.py](db/db.py) が自動で読み込みます。
 
 ### 方法B: DBリセットなしで管理者を追加/変更
 既存DBを保持したまま、管理者ユーザーを「追加/パスワード更新」したいときは以下を実行します。
@@ -44,4 +41,11 @@ CINEMA_ADMIN_PASSWORD=change_me
 DB（cinema.db）が未生成の場合は中断します。
 
 ## 使い方
-wip
+`scripts/run.(bat|sh)` で起動するとログイン画面から開始します。
+
+## サンプルデータ投入
+映画5本と、2か月分の平日（月〜金）上映スケジュール（週ごとに繰り返し）を登録します。
+
+- `python scripts/seed_sample_data.py`
+
+※ cinema.db が未生成の場合は中断します（先に `python db/init_db.py`）。
