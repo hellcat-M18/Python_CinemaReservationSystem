@@ -14,6 +14,12 @@ import os
 import sys
 from datetime import datetime
 
+# インポート時の探索場所候補にプロジェクトルートを追加
+ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+# sys.pathはimportなどのタイミングで勝手に参照される
+if ROOT_DIR not in sys.path:
+    sys.path.insert(0, ROOT_DIR)
+
 # プロジェクトルートのパス
 def _project_root() -> str:
     return os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
