@@ -9,10 +9,33 @@ Session = dict
 #Callableは型ヒントの一環。PageFnがSessionを引数に取り、更新後のSessionを返す関数であることを示す。
 PageFn = Callable[[Session], Session]
 
+
+def _is_colab_or_notebook() -> bool:
+    # Google Colab はこれらの環境変数のいずれかを持つことが多い
+    if any(
+        os.environ.get(k)
+        for k in (
+            "COLAB_RELEASE_TAG",
+            "COLAB_GPU",
+            "COLAB_BACKEND_VERSION",
+            "COLAB_JUPYTER_IP",
+        )
+    ):
+        return True
+
+    # Jupyter/IPython 環境判定（ローカルでもノートブックなら True）
+    try:
+        from IPython import get_ipython  # type: ignore
+
+        return get_ipython() is not None
+    except Exception:
+        return False
+
 # コマンドラインのクリア
 def _clear_screen() -> None:
-    # Colab/Jupyter など stdout がTTYでない環境では clear/cls が崩れの原因になる
-    if not sys.stdout.isatty():
+    # Colab/Jupyter のセル出力では clear/cls の制御文字が表示に混ざり、
+    # 先頭に "H" が出るなどレイアウト崩れの原因になる
+    if _is_colab_or_notebook():
         return
     os.system("cls" if os.name == "nt" else "clear")
 
@@ -25,7 +48,7 @@ def _configure_non_tty_layout() -> None:
     importより前に環境変数をセットしておく。
     """
 
-    if sys.stdout.isatty():
+    if not _is_colab_or_notebook():
         return
 
     # 既に指定があれば尊重する
