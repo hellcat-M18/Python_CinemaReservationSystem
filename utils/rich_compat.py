@@ -21,3 +21,6 @@ def is_colab() -> bool:
 # Colabは罫線文字(│─など)やブロック文字(█▀▄)が別フォント扱いになり、
 # 列幅がズレて表示が崩れることがあるため、ASCII枠に寄せる。
 TABLE_KWARGS = {"box": box.ASCII} if is_colab() else {}
+
+# ↑ 他のファイルで from utils.rich_compat import TABLE_KWARGS として使う
+# 要はColabならTableのオプションでASCII枠を使うように指定し、そうでなければ何も渡さない、という処理

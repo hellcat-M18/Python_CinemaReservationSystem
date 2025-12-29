@@ -1,4 +1,3 @@
-import importlib
 import os
 
 import qrcode
@@ -25,20 +24,8 @@ def print(data: str, border: int = 4) -> None:
     """QRを表示する。
 
     - 通常: コンソール向けに文字で表示
-    - Colab: ブロック文字(█▀▄)や罫線がフォント混在で崩れやすいので、画像表示を優先
+    - Colab: ブロック文字(█▀▄)や罫線がフォント混在で崩れやすいので、ASCII表示を優先
     """
-
-    if _is_colab():
-        try:
-            ipy_display = importlib.import_module("IPython.display")
-            display = getattr(ipy_display, "display")
-
-            img = qrcode.make(data)
-            display(img)
-            return
-        except Exception:
-            # 画像表示ができない環境ではASCIIにフォールバック
-            pass
 
     qr = qrcode.QRCode(
         border=border,
