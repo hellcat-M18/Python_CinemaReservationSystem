@@ -21,8 +21,3 @@ if not exist "%VENV_PY%" (
     echo ERROR: venv python still not found: %VENV_PY%
     exit /b 1
 )
-
-@REM router.pyを起動
-
-"%VENV_PY%" "%ROOT%\router.py"
-endlocal

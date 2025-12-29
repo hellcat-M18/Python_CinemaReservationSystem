@@ -13,10 +13,3 @@ if [ ! -x "$VENV_PY" ]; then
     "$PY" "$ROOT_DIR/scripts/setup.py"
 fi
 
-# venvがあればvenvで実行、なければ通常Pythonで実行（Colabなど）
-if [ -x "$VENV_PY" ]; then
-    exec "$VENV_PY" "$ROOT_DIR/router.py"
-else
-    echo "NOTE: venv python not found. Running with: $PY" >&2
-    exec "$PY" "$ROOT_DIR/router.py"
-fi

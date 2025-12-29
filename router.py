@@ -28,8 +28,22 @@ Session = dict
 #Callableは型ヒントの一環。PageFnがSessionを引数に取り、更新後のSessionを返す関数であることを示す。
 PageFn = Callable[[Session], Session]
 
+
+def _is_colab() -> bool:
+    return any(
+        os.environ.get(k)
+        for k in (
+            "COLAB_RELEASE_TAG",
+            "COLAB_GPU",
+            "COLAB_BACKEND_VERSION",
+            "COLAB_JUPYTER_IP",
+        )
+    )
+
 # コマンドラインのクリア
 def _clear_screen() -> None:
+    if _is_colab():
+        return
     os.system("cls" if os.name == "nt" else "clear")
 
 

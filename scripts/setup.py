@@ -51,13 +51,43 @@ def _is_colab() -> bool:
         )
     )
 
+
+def _supports_ansi() -> bool:
+    # 依存追加なしで色付けするための最低限の判定。
+    # - 対話端末では基本ON
+    # - NO_COLOR があればOFF
+    if os.environ.get("NO_COLOR") is not None:
+        return False
+    return sys.stdout.isatty()
+
+
+def _c(text: str, code: str) -> str:
+    if not _supports_ansi():
+        return text
+    return f"\x1b[{code}m{text}\x1b[0m"
+
+
+def _prompt(text: str) -> str:
+    # 入力を求めるメッセージは緑
+    return _c(text, "32")
+
+
+def _note(text: str) -> str:
+    # NOTEは黄色
+    return _c(text, "33")
+
+
+def _error(text: str) -> str:
+    # ERRORは赤
+    return _c(text, "31")
+
 # メイン処理
 def main() -> int:
     # ディレクトリ設定
     root_dir = _project_root()
     req = root_dir / "requirements.txt"
     if not req.exists():
-        print("ERROR: requirements.txt not found")
+        print(_error("ERROR: requirements.txt not found"))
         return 1
 
     # Colab は venv を作らず、その場の環境に install する
@@ -98,21 +128,25 @@ def main() -> int:
     env_path = root_dir / ".env"
     if not _env_has_admin_keys(env_path):
         if sys.stdin.isatty():
-            ans = input("Admin (.env) を設定しますか? [y/N]: ").strip().lower()
+            ans = input(_prompt("Admin (.env) を設定しますか? [y/N]: ")).strip().lower()
             if ans in {"y", "yes"}:
                 _run([runner_py, str(root_dir / "scripts" / "set_admin_env.py")], cwd=root_dir)
         else:
-            print("NOTE: .env admin keys are not set. Skipping set_admin_env (non-interactive).")
+            print(_note("NOTE: .env admin keys are not set. Skipping set_admin_env (non-interactive)."))
+
+    # .env に管理者キーがあるなら、DB(users)へ反映（Adminでログインできない問題の対策）
+    if _env_has_admin_keys(env_path):
+        _run([runner_py, str(root_dir / "scripts" / "create_or_update_admin.py")], cwd=root_dir)
 
     # 管理者設定の後、必要ならサンプルデータ投入
     if sys.stdin.isatty():
-        ans = input("サンプルデータを投入しますか? [y/N]: ").strip().lower()
+        ans = input(_prompt("サンプルデータを投入しますか? [y/N]: ")).strip().lower()
         if ans in {"y", "yes"}:
 
             _run([runner_py, str(root_dir / "scripts" / "seed_sample_data.py")], cwd=root_dir)
             
     else:
-        print("NOTE: skipping sample data seed (non-interactive).")
+        print(_note("NOTE: skipping sample data seed (non-interactive)."))
 
     # 完了メッセージ
     print("OK: setup completed.")
