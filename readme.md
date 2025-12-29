@@ -3,13 +3,17 @@
 
 ## セットアップ
 Windowsの場合
-1. `python scripts/setup.py`
-2. `scripts\run.bat`
+1. `scripts/run.bat`
+2. 必要なら`python scripts/seed_sample_data.py`でサンプルデータ投入
 
 Linuxの場合
-1. `python3 scripts/setup.py`
-2. `bash scripts/run.sh`
+1. `bash scripts/run.sh`
+2. 必要なら`python scripts/seed_sample_data.py`でサンプルデータ投入
 
+Google Colabの場合
+1. `!pip install -r requirements.txt`
+2. `!python router.py`
+3. 必要なら`!python scripts/seed_sample_data.py`でサンプルデータ投入
 
 ## 依存関係
 - SQLAlchemy==2.0.45

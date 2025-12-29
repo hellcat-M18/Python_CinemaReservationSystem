@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import os
-import sys
 from getpass import getpass
 
 KEY_USERNAME = "CINEMA_ADMIN_USERNAME"
@@ -38,8 +37,17 @@ def _upsert_kv(lines: list[str], key: str, value: str) -> list[str]:
 
 # メイン処理
 def main() -> int:
-    username = input("Admin username: ").strip()
-    password = getpass("Admin password: ").strip()
+    while True:
+        username = input("Admin username: ").strip()
+        if username:
+            break
+        print("ERROR: username is required")
+
+    while True:
+        password = getpass("Admin password: ").strip()
+        if password:
+            break
+        print("ERROR: password is required")
 
     # .env ファイルを読み込み、更新して書き戻す
     env_file = _env_path()
@@ -60,4 +68,4 @@ def main() -> int:
 
 # シェルから呼んだ時に終了コードを明示的に返す書き方
 if __name__ == "__main__":
-    raise SystemExit(main(sys.argv))
+    raise SystemExit(main())
