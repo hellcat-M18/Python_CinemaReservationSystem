@@ -1,9 +1,11 @@
 from rich.console import Console
+from rich.table import Table
 
 from sqlalchemy import select   # db操作用、Select文
 
 from db.db import SessionLocal  # DB操作のセッションを生成するクラス
 from db.models import Movie     # テーブル"Movie"のモデルをインポート
+from utils.rich_compat import TABLE_KWARGS
 
 console = Console(highlight=False)
 
@@ -33,14 +35,28 @@ def run(session: dict) -> dict:
         console.print("[yellow]映画が登録されていません。[/yellow]")
     else:
         console.print("\n[bold]映画一覧[/bold]")
+
+        table = Table(show_header=True, header_style="bold", **TABLE_KWARGS)
+        table.add_column("id", justify="right")
+        table.add_column("タイトル", justify="left")
+        table.add_column("上映時間(min)", justify="right")
+        table.add_column("基本料金", justify="right")
+        table.add_column("上映期間", justify="left")
+
         for movie in movies:
-            run_range = ""
-            if movie.run_start_date or movie.run_end_date:
-                run_range = f" ({movie.run_start_date or ''} - {movie.run_end_date or ''})"
-            console.print(
-                f"  id={movie.id} | {movie.title} | {movie.duration_min}min | price={movie.default_price}{run_range}"
+            start = str(movie.run_start_date) if movie.run_start_date else "-"
+            end = str(movie.run_end_date) if movie.run_end_date else "-"
+            run_range = "-" if (start == "-" and end == "-") else f"{start} - {end}"
+
+            table.add_row(
+                str(movie.id),
+                str(movie.title),
+                str(movie.duration_min),
+                str(movie.default_price),
+                run_range,
             )
-            # id, タイトル, 上映時間, 上映期間(あれば)を表示
+
+        console.print(table)
 
     # 操作候補の表示と入力待ち
     while True:

@@ -40,7 +40,7 @@ def print(data: str, border: int = 4) -> None:
 
     # Colabはブロック文字が崩れやすいのでASCIIのみで表示。
     if _is_colab():
-        BLACK = "##"
+        BLACK = "@@"
         WHITE = "  "
         lines: list[str] = []
         for row in m:
