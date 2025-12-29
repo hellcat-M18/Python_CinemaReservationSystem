@@ -1,6 +1,8 @@
 # Core dependencies for this project
 SQLAlchemy==2.0.45
-rich==14.2.0
 qrcode==8.2
 passlib==1.7.4
 python-dotenv==1.0.1
+
+# Colab導入時の依存関係問題回避(bigframesが14未満を要求するため)
+rich>=12.4.4,<14

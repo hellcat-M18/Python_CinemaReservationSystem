@@ -85,6 +85,15 @@ def main() -> int:
         print("Installing requirements")
         _run([runner_py, "-m", "pip", "install", "-r", str(req)], cwd=root_dir)
 
+    # pip installの後にDBテーブルを作成
+    print("Creating DB tables")
+    _run(
+        # init_db関数をdb/db.pyから読み込み、実行
+        [runner_py, "-c", "from db.db import init_db; init_db(); print('OK: created tables')"],
+        cwd=root_dir,
+    )
+
+
     # 依存導入後、必要なら管理者アカウント(.env)もセットアップ
     env_path = root_dir / ".env"
     if not _env_has_admin_keys(env_path):
@@ -99,19 +108,9 @@ def main() -> int:
     if sys.stdin.isatty():
         ans = input("サンプルデータを投入しますか? [y/N]: ").strip().lower()
         if ans in {"y", "yes"}:
-            # 既存DBが無い場合のみ作成（破壊的リセットはしない）
-            if not _db_path(root_dir).exists():
-                print("Creating DB: cinema.db")
-                _run(
-                    [
-                        runner_py,
-                        "-c",
-                        "from db.db import init_db; init_db(); print('OK: created tables')",
-                    ],
-                    cwd=root_dir,
-                )
 
             _run([runner_py, str(root_dir / "scripts" / "seed_sample_data.py")], cwd=root_dir)
+            
     else:
         print("NOTE: skipping sample data seed (non-interactive).")
 
