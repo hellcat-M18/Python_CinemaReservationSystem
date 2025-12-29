@@ -1,27 +1,8 @@
 from __future__ import annotations  #後のバージョンのPythonの機能を先取りして使うための記述 
 
 import os
+import sys
 from typing import Callable   #型ヒントのモジュール
-
-# 各ページをフォルダからインポート
-from pages import (
-    AdminGateCheck,
-    AdminMenu,
-    AdminMovieDelete,
-    AdminMovieEdit,
-    AdminMovieList,
-    AdminScheduleEdit,
-    UserCheckout,
-    UserCancelTicket,
-    UserReservationList,
-    UserMenu,
-    UserMovieBrowse,
-    UserShowCalendar,
-    UserSeatSelect,
-    UserShowSelect,
-    UserTicketQR,
-    login,
-)
 
 Session = dict
 
@@ -30,7 +11,26 @@ PageFn = Callable[[Session], Session]
 
 # コマンドラインのクリア
 def _clear_screen() -> None:
+    # Colab/Jupyter など stdout がTTYでない環境では clear/cls が崩れの原因になる
+    if not sys.stdout.isatty():
+        return
     os.system("cls" if os.name == "nt" else "clear")
+
+
+def _configure_non_tty_layout() -> None:
+    """Colab/Jupyter など(非TTY)でのレイアウト崩れを軽減する。
+
+    RichのConsoleは生成時に端末サイズ(=COLUMNS/LINES)を参照する。
+    このプロジェクトは各ページモジュールのimport時に Console() を作るため、
+    importより前に環境変数をセットしておく。
+    """
+
+    if sys.stdout.isatty():
+        return
+
+    # 既に指定があれば尊重する
+    os.environ.setdefault("COLUMNS", "140")
+    os.environ.setdefault("LINES", "40")
 
 
 def _resolve_next_page(current: str, session: Session, result: Session) -> tuple[str | None, Session]:
@@ -61,6 +61,28 @@ def _resolve_next_page(current: str, session: Session, result: Session) -> tuple
 
 # メインルーター関数
 def run_router() -> None:
+    _configure_non_tty_layout()
+
+    # 各ページをフォルダからインポート（Console生成より前に COLUMNS を設定したいのでここでimport）
+    from pages import (
+        AdminGateCheck,
+        AdminMenu,
+        AdminMovieDelete,
+        AdminMovieEdit,
+        AdminMovieList,
+        AdminScheduleEdit,
+        UserCheckout,
+        UserCancelTicket,
+        UserReservationList,
+        UserMenu,
+        UserMovieBrowse,
+        UserShowCalendar,
+        UserSeatSelect,
+        UserShowSelect,
+        UserTicketQR,
+        login,
+    )
+
     # 実行ディレクトリ差によるDB参照ズレや初回起動時の未作成を吸収（念の為の措置、create_allは非破壊的）
     from db.db import init_db
 

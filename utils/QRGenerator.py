@@ -1,12 +1,11 @@
 import qrcode
 from rich.console import Console
-from rich.text import Text
 
 console = Console(highlight=False)
 
-def print(data: str, border: int = 4):
+def generate_qr_ascii(data: str, border: int = 4) -> str:
     """
-    半ブロック(█▀▄)でQRを生成し、Richで崩れにくい Text を返す。
+    半ブロック(█▀▄)でQRを生成し、崩れにくい文字列を返す。
     - border: Quiet Zone。読み取りなら 4 推奨。
     """
     WHITE = "\u00A0"  # NBSP: 見た目は空白だが幅が潰れにくい
@@ -41,7 +40,10 @@ def print(data: str, border: int = 4):
             row.append(ch)
         lines.append("".join(row))
 
-    # Rich Textとして返す（スタイル不要ならこれでOK）
-    res = Text("\n".join(lines), overflow="ignore", no_wrap=True)
+    return "\n".join(lines)
 
-    console.print(res)  # デバッグ用にコンソール出力
+
+def print(data: str, border: int = 4) -> None:
+    qr_text = generate_qr_ascii(data=data, border=border)
+    # QRは「折り返し」されると崩れるので、markup無効＋wrap無効で出す
+    console.print(qr_text, markup=False, highlight=False, overflow="ignore", soft_wrap=False)
