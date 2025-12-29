@@ -3,6 +3,8 @@ from __future__ import annotations
 import os
 from datetime import datetime
 
+from pathlib import Path
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
@@ -14,8 +16,10 @@ except ImportError:  # pragma: no cover
     # 初期化時はこちらが動く
     from models import Base
 
-DB_PATH = "cinema.db"                   # SQLiteのDBファイルパス
-DATABASE_URL = f"sqlite:///{DB_PATH}"   # SQLiteの接続URL, この場合は相対パスで指定
+# DBファイルのパスと接続URLの設定
+_ROOT_DIR = Path(__file__).resolve().parent.parent  # プロジェクトルート
+DB_PATH = str((_ROOT_DIR / "cinema.db").resolve())  # DBファイルの絶対パス
+DATABASE_URL = f"sqlite:///{Path(DB_PATH).as_posix()}" # SQLiteの接続URL
 
 
 def _load_dotenv_if_exists() -> None:

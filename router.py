@@ -61,6 +61,11 @@ def _resolve_next_page(current: str, session: Session, result: Session) -> tuple
 
 # メインルーター関数
 def run_router() -> None:
+    # 実行ディレクトリ差によるDB参照ズレや初回起動時の未作成を吸収（念の為の措置、create_allは非破壊的）
+    from db.db import init_db
+
+    init_db()
+
     pages: dict[str, PageFn] = {
         "login": login.run,
         "admin_menu": AdminMenu.run,
