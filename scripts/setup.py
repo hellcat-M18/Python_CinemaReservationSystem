@@ -38,29 +38,52 @@ def _env_has_admin_keys(env_path: Path) -> bool:
 def _db_path(root_dir: Path) -> Path:
     return root_dir / "cinema.db"
 
+
+def _is_colab() -> bool:
+    # Google Colab sets one or more of these env vars.
+    return any(
+        os.environ.get(k)
+        for k in (
+            "COLAB_RELEASE_TAG",
+            "COLAB_GPU",
+            "COLAB_BACKEND_VERSION",
+            "COLAB_JUPYTER_IP",
+        )
+    )
+
 # メイン処理
 def main() -> int:
     # ディレクトリ設定
     root_dir = _project_root()
-    venv_dir = root_dir / ".venv"
-    venv_py = _venv_python(venv_dir)
-
-    # venvがなければ作成
-    if not venv_py.exists():
-        print("Creating venv: .venv")
-        _run([sys.executable, "-m", "venv", str(venv_dir)], cwd=root_dir)
-
-    # pipをアップグレードしてからrequirements.txtをインストール
-    print("Upgrading pip")
-    _run([str(venv_py), "-m", "pip", "install", "--upgrade", "pip"], cwd=root_dir)
-
     req = root_dir / "requirements.txt"
     if not req.exists():
         print("ERROR: requirements.txt not found")
         return 1
 
-    print("Installing requirements")
-    _run([str(venv_py), "-m", "pip", "install", "-r", str(req)], cwd=root_dir)
+    # Colab は venv を作らず、その場の環境に install する
+    if _is_colab():
+        runner_py = sys.executable # 現在実行中のPythonのパスを取得
+        print("Colab detected: installing requirements into current environment (no venv)")
+        print("Upgrading pip")
+        # colabのpythonを使ってアップグレード・インストール
+        _run([runner_py, "-m", "pip", "install", "--upgrade", "pip"], cwd=root_dir)
+        print("Installing requirements")
+        _run([runner_py, "-m", "pip", "install", "-r", str(req)], cwd=root_dir)
+    else:
+        venv_dir = root_dir / ".venv"
+        venv_py = _venv_python(venv_dir)
+        runner_py = str(venv_py)
+
+        # venvがなければ作成
+        if not venv_py.exists():
+            print("Creating venv: .venv")
+            _run([sys.executable, "-m", "venv", str(venv_dir)], cwd=root_dir)
+
+        # pipをアップグレードしてからrequirements.txtをインストール
+        print("Upgrading pip")
+        _run([runner_py, "-m", "pip", "install", "--upgrade", "pip"], cwd=root_dir)
+        print("Installing requirements")
+        _run([runner_py, "-m", "pip", "install", "-r", str(req)], cwd=root_dir)
 
     # 依存導入後、必要なら管理者アカウント(.env)もセットアップ
     env_path = root_dir / ".env"
@@ -68,7 +91,7 @@ def main() -> int:
         if sys.stdin.isatty():
             ans = input("Admin (.env) を設定しますか? [y/N]: ").strip().lower()
             if ans in {"y", "yes"}:
-                _run([str(venv_py), str(root_dir / "scripts" / "set_admin_env.py")], cwd=root_dir)
+                _run([runner_py, str(root_dir / "scripts" / "set_admin_env.py")], cwd=root_dir)
         else:
             print("NOTE: .env admin keys are not set. Skipping set_admin_env (non-interactive).")
 
@@ -81,20 +104,20 @@ def main() -> int:
                 print("Creating DB: cinema.db")
                 _run(
                     [
-                        str(venv_py),
+                        runner_py,
                         "-c",
                         "from db.db import init_db; init_db(); print('OK: created tables')",
                     ],
                     cwd=root_dir,
                 )
 
-            _run([str(venv_py), str(root_dir / "scripts" / "seed_sample_data.py")], cwd=root_dir)
+            _run([runner_py, str(root_dir / "scripts" / "seed_sample_data.py")], cwd=root_dir)
     else:
         print("NOTE: skipping sample data seed (non-interactive).")
 
     # 完了メッセージ
-    print("OK: local venv is ready.")
-    print(f"Python: {venv_py}")
+    print("OK: setup completed.")
+    print(f"Python: {runner_py}")
     return 0
 
 

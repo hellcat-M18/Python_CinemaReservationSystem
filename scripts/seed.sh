@@ -5,11 +5,17 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 VENV_PY="$ROOT_DIR/.venv/bin/python"
 
-# venvのPythonが見つからなければエラー
+PY="python3"
+
 if [ ! -x "$VENV_PY" ]; then
-    cho "ERROR: venv not found. Run bash scripts/run.sh or python3 scripts/setup.py first." >&2
-    exit 1
+    echo "venv not found. Running setup..."
+    "$PY" "$ROOT_DIR/scripts/setup.py"
 fi
 
-# seed_sample_data.pyを実行
-"$VENV_PY" "$ROOT_DIR/scripts/seed_sample_data.py"
+# venvがあればvenvで実行、なければ通常Pythonで実行（Colabなど）
+if [ -x "$VENV_PY" ]; then
+    exec "$VENV_PY" "$ROOT_DIR/scripts/seed_sample_data.py"
+else
+    echo "NOTE: venv python not found. Running with: $PY" >&2
+    exec "$PY" "$ROOT_DIR/scripts/seed_sample_data.py"
+fi
