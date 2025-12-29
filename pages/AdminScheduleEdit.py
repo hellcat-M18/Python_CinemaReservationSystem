@@ -1,6 +1,8 @@
 from rich.console import Console
 from rich.table import Table
 
+from utils.rich_compat import TABLE_KWARGS
+
 from datetime import date, datetime, timedelta # 日付・時間操作用
 
 from sqlalchemy import func, select  # DB操作用、集約関数func、Select文 
@@ -89,7 +91,7 @@ def run(session: dict) -> dict:
         movies = db_session.execute(select(Movie).order_by(Movie.id)).scalars().all()
 
     if movies:
-        table = Table(title="映画一覧")
+        table = Table(title="映画一覧", **TABLE_KWARGS)
         table.add_column("id", justify="right")
         table.add_column("title")
         table.add_column("上映期間")
@@ -351,7 +353,7 @@ def run(session: dict) -> dict:
         # 衝突する箇所が見つかれば警告
         if internal_conflicts:
             console.print("\n[red]エラー: 同一ホール内で上映時間が重複しています（入力したスケジュール同士の衝突）。[/red]")
-            ctbl = Table(title=f"衝突(入力内) hall={hall}")
+            ctbl = Table(title=f"衝突(入力内) hall={hall}", **TABLE_KWARGS)
             ctbl.add_column("枠A")
             ctbl.add_column("枠B")
             for a_start, a_end, b_start, b_end in internal_conflicts:
@@ -412,7 +414,7 @@ def run(session: dict) -> dict:
                 movie_map2 = {m.id: m for m in movies2}
 
                 console.print("\n[yellow]警告: 同一ホールで他の上映と時間帯が重複しています。[/yellow]")
-                etbl = Table(title=f"衝突(既存) hall={hall}")
+                etbl = Table(title=f"衝突(既存) hall={hall}", **TABLE_KWARGS)
                 etbl.add_column("入力した枠")
                 etbl.add_column("既存show")
                 etbl.add_column("映画")

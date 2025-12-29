@@ -1,6 +1,8 @@
 from rich.console import Console
 from rich.table import Table
 
+from utils.rich_compat import TABLE_KWARGS
+
 from sqlalchemy import select
 
 from db.db import SessionLocal
@@ -26,7 +28,7 @@ def run(session: dict) -> dict:
         return session
 
     # テーブル作成
-    table = Table(title="映画一覧")
+    table = Table(title="映画一覧", **TABLE_KWARGS)
     table.add_column("No", justify="right")
     table.add_column("movie_id", justify="right")
     table.add_column("title")

@@ -7,6 +7,8 @@ from typing import Iterable       # 型ヒント用モジュール
 from rich.console import Console  # richライブラリのConsoleクラスをインポート
 from rich.table import Table      # richライブラリのTableクラスをインポート
 
+from utils.rich_compat import TABLE_KWARGS
+
 # 映画館のホールレイアウトを扱うユーティリティ
 @dataclass(frozen=True)
 class HallLayout:
@@ -66,7 +68,7 @@ def render_vacancy_table(
     reserved_set = set(reserved)
     available = [s for s in all_seats if s not in reserved_set]
 
-    table = Table(title=f"Hall {hall} 座席状況")
+    table = Table(title=f"Hall {hall} 座席状況", **TABLE_KWARGS)
     table.add_column("区分", justify="left")
     table.add_column("席数", justify="right")
     table.add_column("席一覧（先頭のみ）", justify="left")
@@ -105,7 +107,7 @@ def render_seat_map(
     max_cols = max(len(r) for r in rows)
 
     # 表形式で表示
-    table = Table(title=f"Hall {hall} 座席表", show_header=True)
+    table = Table(title=f"Hall {hall} 座席表", show_header=True, **TABLE_KWARGS)
     table.add_column("列")
     for i in range(1, max_cols + 1):
         table.add_column(str(i), justify="center")

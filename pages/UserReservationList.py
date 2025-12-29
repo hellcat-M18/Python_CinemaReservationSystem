@@ -3,6 +3,8 @@ import json
 from rich.console import Console
 from rich.table import Table
 
+from utils.rich_compat import TABLE_KWARGS
+
 from sqlalchemy import select
 
 from db.db import SessionLocal
@@ -78,7 +80,7 @@ def run(session: dict) -> dict:
             seats_by_ticket.setdefault(int(tid), []).append(str(seat))
 
     # 予約一覧を表示
-    table = Table(title=f"予約一覧: {user_name}")
+    table = Table(title=f"予約一覧: {user_name}", **TABLE_KWARGS)
     table.add_column("No", justify="right")
     table.add_column("UUID")
     table.add_column("映画")

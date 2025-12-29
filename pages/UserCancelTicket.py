@@ -1,6 +1,8 @@
 from rich.console import Console
 from rich.table import Table
 
+from utils.rich_compat import TABLE_KWARGS
+
 from sqlalchemy import select
 
 from db.db import SessionLocal
@@ -78,7 +80,7 @@ def run(session: dict) -> dict:
             seats_by_ticket.setdefault(int(tid), []).append(str(seat))
 
     # 予約一覧を表示
-    table = Table(title=f"キャンセル対象一覧: {user_name}")
+    table = Table(title=f"キャンセル対象一覧: {user_name}", **TABLE_KWARGS)
     table.add_column("No", justify="right")
     table.add_column("映画")
     table.add_column("開始")
@@ -130,7 +132,7 @@ def run(session: dict) -> dict:
         seats = seats_by_ticket.get(selected.id, [])
 
         # 確認表示
-        t = Table(title="キャンセル確認")
+        t = Table(title="キャンセル確認", **TABLE_KWARGS)
         t.add_column("項目")
         t.add_column("値")
         t.add_row("UUID", selected.uuid)

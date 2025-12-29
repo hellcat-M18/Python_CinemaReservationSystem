@@ -1,6 +1,8 @@
 from rich.console import Console
 from rich.table import Table
 
+from utils.rich_compat import TABLE_KWARGS
+
 from datetime import datetime, timedelta
 
 from sqlalchemy import select
@@ -69,7 +71,7 @@ def run(session: dict) -> dict:
         return session
 
     # richでテーブル作成
-    table = Table(title="上映回一覧")
+    table = Table(title="上映回一覧", **TABLE_KWARGS)
     table.add_column("No", justify="right")
     table.add_column("show_id", justify="right")
     table.add_column("start_at")

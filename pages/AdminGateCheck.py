@@ -3,6 +3,8 @@ from datetime import datetime
 from rich.console import Console
 from rich.table import Table
 
+from utils.rich_compat import TABLE_KWARGS
+
 from sqlalchemy import select
 
 from db.db import SessionLocal
@@ -62,7 +64,7 @@ def run(session: dict) -> dict:
             )
 
             # 結果表示
-            t = Table(title="改札結果")
+            t = Table(title="改札結果", **TABLE_KWARGS)
             t.add_column("項目")
             t.add_column("値")
             t.add_row("UUID", ticket.uuid)

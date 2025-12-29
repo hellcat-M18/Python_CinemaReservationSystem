@@ -1,6 +1,8 @@
 from rich.console import Console
 from rich.table import Table
 
+from utils.rich_compat import TABLE_KWARGS
+
 from sqlalchemy import select   # DB操作用、Select文
 
 from datetime import date       # 日付を扱うためのモジュール
@@ -49,7 +51,7 @@ def run(session: dict) -> dict:
                 return session
 
             # 編集モード: 現在の登録情報を一覧表示
-            info = Table(title="現在の登録情報")
+            info = Table(title="現在の登録情報", **TABLE_KWARGS)
             info.add_column("項目")
             info.add_column("値")
             info.add_row("id", str(movie.id))

@@ -7,6 +7,8 @@ from datetime import date, datetime, timedelta
 from rich.console import Console    # 印字用
 from rich.table import Table    # テーブル表示用
 
+from utils.rich_compat import TABLE_KWARGS
+
 from sqlalchemy import select
 
 from db.db import SessionLocal
@@ -32,7 +34,7 @@ def _render_calendar(year: int, month: int, show_days: set[int]) -> None:
 
     # テーブル作成
     title = f"{year}/{month:02d}"
-    table = Table(title=f"上映カレンダー ({title})", show_header=True, header_style="bold")
+    table = Table(title=f"上映カレンダー ({title})", show_header=True, header_style="bold", **TABLE_KWARGS)
 
     # 曜日ヘッダー追加
     for name in ["日", "月", "火", "水", "木", "金", "土"]:

@@ -8,6 +8,7 @@ from db.db import SessionLocal
 from db.models import Movie, Show, Ticket, TicketSeat
 from utils.datetimeFormat import format_ymd_hm
 from utils import QRGenerator
+from utils.rich_compat import TABLE_KWARGS
 
 console = Console(highlight=False)
 
@@ -71,7 +72,7 @@ def run(session: dict) -> dict:
     console.print("\n[yellow]UUIDは照合のために保管をお願いします[/yellow]")
     console.print(f"UUID: [bold]{ticket.uuid}[/bold]\n")
 
-    purchaser = Table(title="購入者情報")
+    purchaser = Table(title="購入者情報", **TABLE_KWARGS)
     purchaser.add_column("項目")
     purchaser.add_column("値")
     purchaser.add_row("名前", str(ticket.user_name) if ticket.user_name else "-")
@@ -81,7 +82,7 @@ def run(session: dict) -> dict:
     console.print(purchaser)
     
     # チケット情報表示
-    info = Table(title="チケット情報")
+    info = Table(title="チケット情報", **TABLE_KWARGS)
     info.add_column("項目")
     info.add_column("値")
 
@@ -115,7 +116,7 @@ def run(session: dict) -> dict:
             "disabled": "障碍者",
             "other": "その他",
         }
-        bd = Table(title="内訳")
+        bd = Table(title="内訳", **TABLE_KWARGS)
         bd.add_column("区分")
         bd.add_column("枚数", justify="right")
         for k, v in breakdown.items():

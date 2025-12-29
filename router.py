@@ -1,59 +1,36 @@
 from __future__ import annotations  #後のバージョンのPythonの機能を先取りして使うための記述 
 
 import os
-import sys
 from typing import Callable   #型ヒントのモジュール
+
+# 各ページをフォルダからインポート
+from pages import (
+    AdminGateCheck,
+    AdminMenu,
+    AdminMovieDelete,
+    AdminMovieEdit,
+    AdminMovieList,
+    AdminScheduleEdit,
+    UserCheckout,
+    UserCancelTicket,
+    UserReservationList,
+    UserMenu,
+    UserMovieBrowse,
+    UserShowCalendar,
+    UserSeatSelect,
+    UserShowSelect,
+    UserTicketQR,
+    login,
+)
 
 Session = dict
 
 #Callableは型ヒントの一環。PageFnがSessionを引数に取り、更新後のSessionを返す関数であることを示す。
 PageFn = Callable[[Session], Session]
 
-
-def _is_colab_or_notebook() -> bool:
-    # Google Colab はこれらの環境変数のいずれかを持つことが多い
-    if any(
-        os.environ.get(k)
-        for k in (
-            "COLAB_RELEASE_TAG",
-            "COLAB_GPU",
-            "COLAB_BACKEND_VERSION",
-            "COLAB_JUPYTER_IP",
-        )
-    ):
-        return True
-
-    # Jupyter/IPython 環境判定（ローカルでもノートブックなら True）
-    try:
-        from IPython import get_ipython  # type: ignore
-
-        return get_ipython() is not None
-    except Exception:
-        return False
-
 # コマンドラインのクリア
 def _clear_screen() -> None:
-    # Colab/Jupyter のセル出力では clear/cls の制御文字が表示に混ざり、
-    # 先頭に "H" が出るなどレイアウト崩れの原因になる
-    if _is_colab_or_notebook():
-        return
     os.system("cls" if os.name == "nt" else "clear")
-
-
-def _configure_non_tty_layout() -> None:
-    """Colab/Jupyter など(非TTY)でのレイアウト崩れを軽減する。
-
-    RichのConsoleは生成時に端末サイズ(=COLUMNS/LINES)を参照する。
-    このプロジェクトは各ページモジュールのimport時に Console() を作るため、
-    importより前に環境変数をセットしておく。
-    """
-
-    if not _is_colab_or_notebook():
-        return
-
-    # 既に指定があれば尊重する
-    os.environ.setdefault("COLUMNS", "140")
-    os.environ.setdefault("LINES", "40")
 
 
 def _resolve_next_page(current: str, session: Session, result: Session) -> tuple[str | None, Session]:
@@ -84,28 +61,6 @@ def _resolve_next_page(current: str, session: Session, result: Session) -> tuple
 
 # メインルーター関数
 def run_router() -> None:
-    _configure_non_tty_layout()
-
-    # 各ページをフォルダからインポート（Console生成より前に COLUMNS を設定したいのでここでimport）
-    from pages import (
-        AdminGateCheck,
-        AdminMenu,
-        AdminMovieDelete,
-        AdminMovieEdit,
-        AdminMovieList,
-        AdminScheduleEdit,
-        UserCheckout,
-        UserCancelTicket,
-        UserReservationList,
-        UserMenu,
-        UserMovieBrowse,
-        UserShowCalendar,
-        UserSeatSelect,
-        UserShowSelect,
-        UserTicketQR,
-        login,
-    )
-
     # 実行ディレクトリ差によるDB参照ズレや初回起動時の未作成を吸収（念の為の措置、create_allは非破壊的）
     from db.db import init_db
 
