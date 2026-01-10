@@ -21,8 +21,12 @@ console = Console(highlight=False)
 # - Decimal文字列で書くと丸めが安定する
 PRICE_RULES: dict[str, dict[str, str]] = {
     "adult": {"label": "一般", "mult": "1.0"},
-    "child": {"label": "子供", "mult": "0.5"},
-    "disabled": {"label": "障碍者", "mult": "0.7"},
+    "college": {"label": "大学生", "mult": "0.8"},
+    "highschool": {"label": "高校生", "mult": "0.7"},
+    "junior": {"label": "小中学生", "mult": "0.6"},
+    "child": {"label": "幼児(3歳以上)", "mult": "0.5"},
+    "senior": {"label": "シニア(60歳以上)", "mult": "0.7"},
+    "disabled": {"label": "障がい者割引", "mult": "0.7"},
     "other": {"label": "その他", "mult": "1.0"},
 }
 
